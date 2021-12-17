@@ -94,6 +94,8 @@ root      3348     1  0 23:11 ?        00:00:00 /usr/sbin/sshd -D
 root      4035  3348  0 23:11 ?        00:00:00 sshd: cs452 [priv]
 cs452     4040  4035  0 23:11 ?        00:00:00 sshd: cs452@pts/0
 cs452     6836  4042  0 23:39 pts/0    00:00:00 grep --color=auto ssh
+[cs452@localhost system-call]$ pstree | grep ssh
+        |-sshd---sshd---sshd---bash-+-grep
 [cs452@localhost system-call]$ make clean
 /bin/rm --force .tesla* tesla.o tesla.mod.c tesla.mod.o tesla.ko Module.symvers modules.order
 /bin/rm -fr .tmp_versions/
