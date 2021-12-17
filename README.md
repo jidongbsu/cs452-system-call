@@ -130,9 +130,8 @@ Due: 23:59pm, January 25th, 2022. Late submission will not be accepted.
   - You are not allowed to suppress warnings
 
 - [80 pts] Functional Requirements:
-  - Hides Tesla files properly (ls, ls -l, ls -la):    30/30
-  - Hides ssh processes (ps -ef, ps -ef | grep ssh, pstree | grep ssh):    20/20
-  - ssh process cannot be killed: 20/20
+  - Hides Tesla files properly (ls, ls -l, ls -la):    35/35
+  - Hides ssh processes (ps -ef, ps -ef | grep ssh, pstree | grep ssh):    35/35
   - Module can be installed and removed without crashing the system: 10/10 (you won't get these points if your module doesn't implement any of the above functional requirements.)
 
 - [10 pts] Documentation:
