@@ -12,8 +12,6 @@ Your module will intercept several systems calls, so as to achieve the goal of:
 1. hide files whose name contains the string "tesla".
 2. hide all "ssh" processes.
 3. prevent "ssh" from being killed.
-4. prevent tesla files from being edited.
-5. prevent tesla files from being deleted.
 
 # Hiding Files
 
