@@ -82,7 +82,42 @@ drwxrwxr-x.  2 cs452 cs452   23 Dec 16 22:04 .tmp_versions
 ```
 As you can see, at first you have two files: tesla.c and Makefile. After running make, you will have 8 files plus some hidden files - files whose name starts with a period, but with a "ls -la" command, you still can see these hidden files.
 
-After installing your kernel module, all files whose name contains the string of "tesla" are now hidden, and you won't see these files no matter you run "ls", "ls -l", or "ls -a"
+After installing your kernel module, all files whose name contains the string of "tesla" are now hidden, and you won't see these files no matter you run "ls", "ls -l", or "ls -a".
+
+# Hiding Processes
+
+This is what you should achieve:
+
+```console
+[cs452@localhost system-call]$ ps -ef | grep ssh
+root      3348     1  0 23:11 ?        00:00:00 /usr/sbin/sshd -D
+root      4035  3348  0 23:11 ?        00:00:00 sshd: cs452 [priv]
+cs452     4040  4035  0 23:11 ?        00:00:00 sshd: cs452@pts/0
+cs452     6836  4042  0 23:39 pts/0    00:00:00 grep --color=auto ssh
+[cs452@localhost system-call]$ make clean
+/bin/rm --force .tesla* tesla.o tesla.mod.c tesla.mod.o tesla.ko Module.symvers modules.order
+/bin/rm -fr .tmp_versions/
+[cs452@localhost system-call]$ make
+make -C /lib/modules/`uname -r`/build M=`pwd` modules
+make[1]: Entering directory `/usr/src/kernels/3.10.0-957.el7.x86_64'
+  CC [M]  /home/cs452/system-call/tesla.o
+  Building modules, stage 2.
+  MODPOST 1 modules
+  CC      /home/cs452/system-call/tesla.mod.o
+  LD [M]  /home/cs452/system-call/tesla.ko
+make[1]: Leaving directory `/usr/src/kernels/3.10.0-957.el7.x86_64'
+[cs452@localhost system-call]$ sudo insmod tesla.ko
+[cs452@localhost system-call]$ ps -ef | grep ssh
+[cs452@localhost system-call]$ pstree | grep ssh
+[cs452@localhost system-call]$ sudo rmmod tesla.ko
+[cs452@localhost system-call]$ 
+```
+
+As you can see, at first you can see there are ssh processes. After installing your kernel module, all ssh processes disappear.
+
+You can use this command to find out what system calls you need to hijack:
+
+strace -ff -o trace sh -c 'ps -ef | grep ssh'
 
 ## Submission
 
