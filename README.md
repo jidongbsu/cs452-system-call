@@ -13,7 +13,7 @@ Your module will intercept several systems calls, so as to achieve the goal of:
 2. hide all "ssh" processes.
 3. prevent "ssh" from being killed.
 
-# Hiding Files
+## Hiding Files
 
 This is what you should achieve:
 
@@ -82,7 +82,7 @@ As you can see, at first you have two files: tesla.c and Makefile. After running
 
 After installing your kernel module, all files whose name contains the string of "tesla" are now hidden, and you won't see these files no matter you run "ls", "ls -l", or "ls -a".
 
-# Hiding Processes
+## Hiding Processes
 
 This is what you should achieve:
 
@@ -119,11 +119,11 @@ You can use this command to find out what system calls you need to hijack:
 
 strace -ff -o trace sh -c 'ps -ef | grep ssh'
 
-## Submission
+# Submission
 
 Due: 23:59pm, January 25th, 2022. Late submission will not be accepted.
 
-## Grading Rubric (Undergraduate and Graduate)
+# Grading Rubric (Undergraduate and Graduate)
 
 - [10 pts] Compiling
   - Each compiler warning will result in a 3 point deduction.
