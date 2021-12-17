@@ -94,7 +94,7 @@ Due: 23:59pm, January 25th, 2022. Late submission will not be accepted.
   - Each compiler warning will result in a 3 point deduction.
   - You are not allowed to suppress warnings
 
-- [80 pts] Main driver:
+- [80 pts] Functional Requirements:
   - Hides Tesla files properly (ls, ls -l, ls -la):    30/30
   - Hides ssh processes:    20/20
   - ssh process cannot be killed: 20/20
