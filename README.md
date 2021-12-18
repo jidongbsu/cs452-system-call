@@ -4,7 +4,7 @@ In this assignment, we will write a Linux kernel module called tesla. Note that,
 
 ## Important notes
 
-You MUST build against the kernel version (3.10.0-957.el7.x86_64) installed on the cs452 VM. You will need to use root in this project is to load and unload the drivers.
+You MUST build against the kernel version (3.10.0-957.el7.x86_64) installed on the cs452 VM. You will need to use root in this project is to load and unload the kernel module.
 
 # Specification
 
