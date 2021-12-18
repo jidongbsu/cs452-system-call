@@ -12,6 +12,26 @@ Your module will intercept several systems calls, so as to achieve the goal of:
 1. hide files whose name contains the string "tesla".
 2. hide proccesses whose name contains the string "ssh".
 
+## The Starter Code
+
+The starter code shows an example of how you can intercept a system call. It intercepts sys_kill, and it prevents users to kill a process whose name contains the string "ssh".
+
+```console
+[cs452@localhost system-call]$ whoami
+cs452
+[cs452@localhost system-call]$ ps -ef | grep ssh
+root      3343     1  0 03:22 ?        00:00:00 /usr/sbin/sshd -D
+root      3876  3343  0 03:22 ?        00:00:00 sshd: cs452 [priv]
+cs452     4031  3876  0 03:22 ?        00:00:00 sshd: cs452@pts/0
+cs452     4954  4036  0 03:38 pts/0    00:00:00 grep --color=auto ssh
+[cs452@localhost system-call]$ kill -9 4031
+-bash: kill: (4031) - Permission denied
+[cs452@localhost system-call]$ sudo kill -9 4031
+kill: sending signal to 4031 failed: Permission denied
+```
+
+As you can see, the user can not kill the ssh process, whose pid is 4031, and even using the sudo command is still not enough.
+
 ## Hiding Files
 
 This is what you should achieve:
