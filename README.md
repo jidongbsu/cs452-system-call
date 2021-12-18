@@ -17,6 +17,16 @@ Your module will intercept several systems calls, so as to achieve the goal of:
 The starter code shows an example of how you can intercept a system call. It intercepts sys_kill, and it prevents users to kill a process whose name contains the string "ssh".
 
 ```console
+[cs452@localhost system-call]$ make
+make -C /lib/modules/`uname -r`/build M=`pwd` modules
+make[1]: Entering directory `/usr/src/kernels/3.10.0-957.el7.x86_64'
+  CC [M]  /home/cs452/system-call-start/tesla.o
+  Building modules, stage 2.
+  MODPOST 1 modules
+  CC      /home/cs452/system-call-start/tesla.mod.o
+  LD [M]  /home/cs452/system-call-start/tesla.ko
+make[1]: Leaving directory `/usr/src/kernels/3.10.0-957.el7.x86_64'
+[cs452@localhost system-call]$ sudo insmod tesla.ko
 [cs452@localhost system-call]$ whoami
 cs452
 [cs452@localhost system-call]$ ps -ef | grep ssh
@@ -28,9 +38,19 @@ cs452     4954  4036  0 03:38 pts/0    00:00:00 grep --color=auto ssh
 -bash: kill: (4031) - Permission denied
 [cs452@localhost system-call]$ sudo kill -9 4031
 kill: sending signal to 4031 failed: Permission denied
+[cs452@localhost system-call]$ 
 ```
 
-As you can see, the user can not kill the ssh process, whose pid is 4031, and even using the sudo command is still not enough.
+As you can see, once the module is installed, the user can not kill the ssh process, whose pid is 4031, and even using the sudo command is still not enough.
+
+```console
+[cs452@localhost system-call]$ sudo rmmod tesla.ko
+[cs452@localhost system-call-start]$ kill -9 4031
+Connection to 192.168.56.103 closed by remote host.
+Connection to 192.168.56.103 closed.
+```
+
+And then as you can see, once the module is removed, the user can now kill the ssh process - the ssh connection is then lost.
 
 ## Hiding Files
 
@@ -95,7 +115,8 @@ drwx------. 17 cs452 cs452 4096 Dec 16 22:04 ..
 -rw-rw-r--.  1 cs452 cs452   40 Dec 16 22:04 modules.order
 -rw-rw-r--.  1 cs452 cs452    0 Dec 16 22:04 Module.symvers
 drwxrwxr-x.  2 cs452 cs452   23 Dec 16 22:04 .tmp_versions
-[cs452@localhost system-call]$ 
+[cs452@localhost system-call]$ sudo rmmod tesla.ko
+[cs452@localhost system-call]$
 ```
 As you can see, at first you have two files: tesla.c and Makefile. After running make, you will have 8 files plus some hidden files - files whose name starts with a period, but with a "ls -la" command, you still can see these hidden files.
 
