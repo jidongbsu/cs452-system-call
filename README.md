@@ -159,6 +159,10 @@ You can use this command to find out what system calls you need to hijack:
 
 strace -ff -o trace sh -c 'ps -ef | grep ssh'
 
+# References
+
+Operating systems: three easy pieces: chapter 6: Direct Execution. The chapter tells you what system calls are and why system calls are needed, but the chapter does not tell you how to intercept system calls. In other words the chapter talks about theory, in this assignment, we tackle the practical side of system calls.
+
 # Submission
 
 Due: 23:59pm, January 25th, 2022. Late submission will not be accepted/graded.
