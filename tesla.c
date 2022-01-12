@@ -12,7 +12,7 @@
 #include <linux/types.h>  /* size_t */
 #include "tesla.h"
 
-MODULE_AUTHOR("Jidong Xiao");
+MODULE_AUTHOR("Jidong Xiao"); /* change this line to your name */
 MODULE_LICENSE("GPL v2");
 
 /* asmlinkage tells gcc that function parameters will not be in registers, but rather they will be in the stack. */
@@ -53,7 +53,7 @@ asmlinkage long tesla_kill(pid_t pid, int sig)
 
 int tesla_init(void)
 {
-	printk("<1> tesla: loaded.\n");
+	printk("<1> tesla: loaded...\n");
 
 	/* search in kernel symbol table and find the address of sys_call_table */
 	sys_call_table = (long **)kallsyms_lookup_name("sys_call_table");
@@ -94,7 +94,7 @@ int tesla_init(void)
 
 void tesla_cleanup(void)
 {
-	printk("<1> tesla: unloaded.\n");
+	printk("<1> tesla: unloaded...\n");
 	/* clear bit 16 of cr0 */
 	write_cr0(read_cr0() & (~0x10000));
 
