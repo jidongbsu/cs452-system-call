@@ -219,17 +219,21 @@ You should use the command strace to trace what system calls are used. You are h
 
 The 3 system calls functions you need to intercept are:
 
+```c
 asmlinkage long sys\_read(unsigned int fd, char \_\_user \*buf, size\_t count);
 asmlinkage long sys\_write(unsigned int fd, const char \_\_user \*buf, size\_t count);
 asmlinkage long sys\_getdents(unsigned int fd, struct linux\_dirent \_\_user \*dirent, unsigned int count);
+```
 
 All of them are declared in include/linux/syscalls.h.
 
 To intercept them, you need to implement these 3 wrapper functions.
 
+```c
 asmlinkage long tesla\_read(unsigned int fd, char \_\_user \*buf, size\_t count);
 asmlinkage long tesla\_write(unsigned int fd, char \_\_user \*buf, size\_t count);
 asmlinkage long tesla\_getdents(unsigned int fd, struct linux\_dirent \_\_user \*dirp, unsigned int count);
+```
 
 You can use this command to find out why you need to intercept the sys\_getdents() system call function.
 
