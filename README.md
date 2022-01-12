@@ -155,15 +155,33 @@ make[1]: Leaving directory `/usr/src/kernels/3.10.0-957.el7.x86_64'
 
 As you can see, at first you can see there are ssh processes. After installing your kernel module, all ssh processes disappear.
 
-You can use this command to find out what system calls you need to hijack:
+# What Does Intercept Mean?
 
-strace -ff -o trace sh -c 'ps -ef | grep ssh'
+When you run ls or ps, these commands will call some system call functions. These system call functions are stored in the kernel memory and there are pointers pointing to these functions. If you can change these pointers, and make them point to your functions, then the default functions will not be called. Instead, your functions will be called. Look at the starter code,
 
-# Book References
+```c
+    orig_kill= (void *)sys_call_table[__NR_kill];
+    sys_call_table[__NR_kill] = (long *)tesla_kill;
+```
 
-[Direct Execution](https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-mechanisms.pdf). 
+sys\_call\_table[] - this array stores the system call table, which stores all the pointers for all the system call functions. sys\_call\_table[\_\_NR\_kill] - this element of the array stores the address of the sys\_kill() system call function. So what the above two lines are doing: first save the default system call's address into a function pointer called orig\_kill, and then assign a new function pointer, whose name is tesla\_kill, to the array element.
 
-The chapter tells you what system calls are, why system calls are needed, and how system calls in general works; but the chapter does not tell you how to intercept system calls. In other words the chapter talks about theory, in this assignment, we tackle the practical side of system calls.
+After these two lines, when applications call kill, they won't be calling the default kill, rather, it is the tesla\_kill() function which will be called. And then, if the goal of tesla\_kill() is to prevent ssh from being killed, then we can use tesla\_kill() as a wrapper function of the original sys\_kill() function. Below is the main code of the tesla\_kill() function.
+
+```c
+    target = pid_task(find_pid_ns(pid, &init_pid_ns), PIDTYPE_PID);
+    if(target){
+        if(strstr(target->comm, "ssh")){
+            return -EACCES;
+        }
+    }
+
+    ret=orig_kill(pid, sig);
+```
+
+"pid" is the first parameter they pass to sys\_kill(), which tells us which process the user wants to kill. Now, because tesla\_kill() is the wrapper of sys\_kill(), that means all parameters which are supposed to be passed to sys\_kill() are now passed to tesla\_kill(). So the first line of the above code snippet use this pid to search in a list and find out the process name, if the process name contains "ssh", then we just return -EACCES, an error code in the kernel level, indicating permission denied. Thus the process will not be killed. But the last line here is also important, for regular processes, we still want them to be killed - otherwise, the kill command is becoming completely useless - if it can't kill anything. That's why here we call orig\_kill(pid, sig), which basically is calling the original sys\_kill() function - remember we just saved its address above, into the function pointer orig\_kill(). We saved it before, and now it's time to use it, and we just pass the same parameters to orig\_kill(), i.e., whatever passed to tesla\_kill() will now be passed to orig\_kill().
+
+This above example, shows how you can intercept a system call. You basically want the kernel to call your wrapper function first, and then in your wrapper function, you call the original system call() only when it's needed.
 
 # APIs
 
@@ -194,6 +212,36 @@ This is one of the system calls you are going to intercept, so you need to, use 
 prototype: unsigned long copy\_to\_user(void \_\_user \*to, const void \*from, unsigned long n); whatever described above for copy\_from\_user() is still applicable to this function. It's just the copying direction is the opposite. Sometimes you want to copy some data from user space to kernel space, sometimes you want to copy some data from kernel space to user space. Just make sure you understand that in copy\_from\_user(), the 2nd parameter "from" points to a user space buffer, but in copy\_to\_user(), it is the 1st first parameter "to" which points to user space buffer - see that "\_\_user" keyword, it tells the compiler this is a user space pointer.
 
 - I also used some string operation functions. These are the functions you normally would use in applications, but the Linux kernel provides its own implementation of these functions, which typically have the same prototype as their use space counterparts. So you can just look at the man page to find out how to use these functions. Refer to this file: include/linux/string.h, to find out what string operation functions are available in the kernel space. In theory you should include this string.h header file in your kernel module, but it seems this one is included already by some other header file which is included in the starter code, thus you don't really need to explicitly include this string.h. Depending on how you want to manipulate your strings, different students may choose to use different string operation functions. Since these are all commonly used functions by average C programmers (regardless of application developers or kernel developers), I do not describe them here. Just make sure the ones you choose to use are indeed declared in include/linux/string.h. Side note: whatever functions defined in a user level library can not be used by the kernel, and if some kernel level code wants to use such functions, they need to be refined in the kernel code.
+
+# Functions You Need to Implement
+
+You should use the command strace to trace what system calls are used. You are highly recommended to find some online examples showing you how to use strace, and learn what information strace provides; even though in the following I tell you what system calls you should intercept, you still are recommended to use strace to understand why we are intercepting them - if you don't understand this, you likely won't know what exactly you should do inside your wrapper functions.
+
+The 3 system calls functions you need to intercept are:
+
+asmlinkage long sys\_read(unsigned int fd, char \_\_user \*buf, size\_t count);
+asmlinkage long sys\_write(unsigned int fd, const char \_\_user \*buf, size\_t count);
+asmlinkage long sys\_getdents(unsigned int fd, struct linux\_dirent \_\_user \*dirent, unsigned int count);
+
+All of them are declared in include/linux/syscalls.h.
+
+To intercept them, you need to implement these 3 wrapper functions.
+
+asmlinkage long tesla\_read(unsigned int fd, char \_\_user \*buf, size\_t count);
+asmlinkage long tesla\_write(unsigned int fd, char \_\_user \*buf, size\_t count);
+asmlinkage long tesla\_getdents(unsigned int fd, struct linux\_dirent \_\_user \*dirp, unsigned int count);
+
+You can use this command to find out why you need to intercept the sys\_getdents() system call function.
+
+strace -ff -o trace sh -c 'ps -ef | grep ssh'
+
+This strace command will trace child processes as well, so when you run this command it will produce more than one trace file, named "trace.XXX", where XXX is the pid of the process being traced.
+
+# Book References
+
+[Direct Execution](https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-mechanisms.pdf). 
+
+The chapter tells you what system calls are, why system calls are needed, and how system calls in general works; but the chapter does not tell you how to intercept system calls. In other words the chapter talks about theory, in this assignment, we tackle the practical side of system calls.
 
 # Submission
 
