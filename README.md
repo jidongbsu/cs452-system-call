@@ -188,4 +188,4 @@ Due: 23:59pm, January 25th, 2022. Late submission will not be accepted/graded.
 
 - [10 pts] Documentation:
   - README.md file (replace this current README.md with a new one using the README template, and do not check in this current README file.)
-  - You are required to fill in every section of the README template, missing 1 section will result in 2-point deduction.
+  - You are required to fill in every section of the README template, missing 1 section will result in a 2-point deduction.
