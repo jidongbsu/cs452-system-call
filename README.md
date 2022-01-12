@@ -6,6 +6,8 @@ In this assignment, we will write a Linux kernel module called tesla. Note that,
 
 You MUST build against the kernel version (3.10.0-1160.el7.x86\_64) - which is the version of the default kernel installed on the cs452 VM. You will need to use root in this project is to load and unload the kernel module.
 
+Also note that for all kernel level projects, your VM gets frozen is completely expected, just reboot the VM. When you have a bug in your kernel module, it easily gets the VM frozen, you just reboot your VM and debug your code and try to fix your bug. Throughout the entire semester, you likely will reboot your VM more than 100 times...
+
 ## What Are Kernel Modules?
 
 Kernel modules are binary code you can install and remove at runtime. "Install" means insert the code into memory. In Linux, we use the command "sudo insmod xxx.ko" to install a kernel module - which usually has "\*.ko" at the end of its file name. "Remove" means remove it from memory. In Linux, we use the command "sudo rmmod xxx.ko" to remove a kernel module. Once the code is inserted into memory, functions defined in the module will be available/accessible to other parts of the kernel, and will be executed if the PC counter is pointing to the address of these functions. Once the module is removed, these functions will disappear and other parts of the kernel will no longer have access to these functions.
