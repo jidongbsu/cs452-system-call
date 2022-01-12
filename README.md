@@ -14,7 +14,7 @@ Your module will intercept several systems calls, so as to achieve the goal of:
 
 ## The Starter Code
 
-The starter code shows an example of how you can intercept a system call. It intercepts sys_kill, and it prevents users to kill a process whose name contains the string "ssh".
+The starter code shows an example of how you can intercept a system call. It intercepts sys_kill, and it prevents users from killing a process whose name contains the string "ssh".
 
 ```console
 [cs452@localhost system-call]$ make
