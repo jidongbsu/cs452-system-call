@@ -181,19 +181,19 @@ prototype: void kfree(const void * objp); this function frees previously allocat
 
 prototype: unsigned long copy\_from\_user (void * to, const void \_\_user * from, unsigned long n); copy a block of data from user space to kernel space. This function returns number of bytes that could not be copied. On success, this will be zero. You don't really need to use the return value of this function if it's not successful, but you do need to check the return value of this function to make sure it is successful, otherwise you should return -EFAULT, an error code which says "bad address", indicating "an invalid user space address was specified for an argument".
 
-The system call functions you are going to intercept, take parameters from applications, which are programs running in user space; when these parameters are pointers, they point to a user-space address, such addresses are not accessible to kernel code. Or at least it is not safe for kernel to directly access a user-space address. In order to access the data pointed by such pointers, we need to use this copy\_from\_user() function to copy the data into kernel space. in other words, the user space has a buffer, now in your kernel module, which runs in the kernel space, you need to create another buffer, and use this copy\_from\_user() to copy the user space buffer into kernel space, and then your kernel level code can access your kernel space buffer. In the prototype, the pointer "to" pointers to your kernel buffer, the pointer "from" pointers to a user space buffer.
+The system call functions you are going to intercept, take parameters from applications, which are programs running in user space; when these parameters are pointers, they point to a user-space address, such addresses are not accessible to kernel code. Or at least it is not safe for kernel to directly access a user-space address. In order to access the data pointed by such pointers, we need to use this copy\_from\_user() function to copy the data into kernel space. in other words, the user space has a buffer, now in your kernel module, which runs in the kernel space, you need to create another buffer, and use this copy\_from\_user() to copy the user space buffer into kernel space, and then your kernel level code can access your kernel space buffer. In the prototype, the pointer "to" points to your kernel buffer, the pointer "from" points to a user space buffer.
 
 how do you find out the user buffer? look at the prototype of sys\_read() system call (in include/linux/syscalls.h), see the 2nd parameter, is the user space buffer pointer. 
 
 asmlinkage long sys\_read(unsigned int fd, char \_\_user \*buf, size\_t count);
 
-This is one of the system calls you are going to intercept, so you need to pass the data from this "buf" to your buffer - the buffer you define in your kernel module.
+This is one of the system calls you are going to intercept, so you need to, use copy\_from\_user(), to pass the data from this "buf" to your buffer - the buffer you define in your kernel module.
 
 - copy\_to\_user():
 
 prototype: unsigned long copy\_to\_user(void \_\_user \*to, const void \*from, unsigned long n); whatever described above for copy\_from\_user() is still applicable to this function. It's just the copying direction is the opposite. Sometimes you want to copy some data from user space to kernel space, sometimes you want to copy some data from kernel space to user space. Just make sure you understand that in copy\_from\_user(), the 2nd parameter "from" points to a user space buffer, but in copy\_to\_user(), it is the 1st first parameter "to" which points to user space buffer - see that "\_\_user" keyword, it tells the compiler this is a user space pointer.
 
-- I also used some string operation functions. These are the functions you normally would use in applications, but the Linux kernel provides its own implementation of these functions, which typically have the same prototype as their use space counterparts. So you can just look at the man page to find out how to use these functions. Refer to this file: include/linux/string.h, to find out what string operation functions are available in the kernel space. In theory you should include this string.h header file in your kernel module, but it seems this one is included already by some other header file which is included in the starter code, thus you don't really need to explicitly include this string.h. Depending on how you want to manipulate your strings, different students may choose to use different string operation functions. Since these are all commonly used functions by average C programmers (regardless of application developers or kernel developers), I do not describe them here. Just make sure the ones you choose to use are indeed declared in include/linux/string.h.
+- I also used some string operation functions. These are the functions you normally would use in applications, but the Linux kernel provides its own implementation of these functions, which typically have the same prototype as their use space counterparts. So you can just look at the man page to find out how to use these functions. Refer to this file: include/linux/string.h, to find out what string operation functions are available in the kernel space. In theory you should include this string.h header file in your kernel module, but it seems this one is included already by some other header file which is included in the starter code, thus you don't really need to explicitly include this string.h. Depending on how you want to manipulate your strings, different students may choose to use different string operation functions. Since these are all commonly used functions by average C programmers (regardless of application developers or kernel developers), I do not describe them here. Just make sure the ones you choose to use are indeed declared in include/linux/string.h. Side note: whatever functions defined in a user level library can not be used by the kernel, and if some kernel level code wants to use such functions, they need to be refined in the kernel code.
 
 # Submission
 
@@ -202,15 +202,16 @@ Due: 23:59pm, January 25th, 2022. Late submission will not be accepted/graded.
 # Grading Rubric (Undergraduate and Graduate)
 
 - [80 pts] Functional Requirements:
-  - Hides Tesla files properly /35
-    - hides against 'ls',  (10)
-    - hides against 'ls -l',  (10)
-    - hides against 'ls -la'.    (15)
-  - Hides ssh processes /35
-    - hides against 'ps -ef', (10)
-    - hides against 'ps -ef | grep ssh', (10)
-    - hides against 'pstree | grep ssh'.    (15)
-  - Module can be installed and removed without crashing the system: /10 (you won't get these points if your module doesn't implement any of the above functional requirements.)
+  - Hides Tesla files properly			/35
+    - hides against 'ls',			(10 pts)
+    - hides against 'ls -l',			(10 pts)
+    - hides against 'ls -la'.			(15 pts)
+  - Hides ssh processes				/35
+    - hides against 'ps -ef',			(10 pts)
+    - hides against 'ps -ef | grep ssh', 	(10 pts)
+    - hides against 'pstree | grep ssh'.    	(15 pts)
+  - Module can be installed and removed without crashing the system: /10 
+    - you won't get these points if your module doesn't implement any of the above functional requirements.
 
 - [10 pts] Compiling
   - Each compiler warning will result in a 3-point deduction.
