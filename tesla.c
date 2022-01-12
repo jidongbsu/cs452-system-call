@@ -1,7 +1,7 @@
 /*
  * tesla.c -- a kernel module which hides files and processes.
  */
-#include <linux/module.h>
+#include <linux/module.h> /* for every kernel module */
 #include <linux/kernel.h> /* printk() */
 #include <linux/version.h> /* printk() */
 #include <linux/syscalls.h> /* for kallsyms_lookup_name, and NR_read, NR_write,... */
