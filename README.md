@@ -172,9 +172,12 @@ Due: 23:59pm, January 25th, 2022. Late submission will not be accepted/graded.
 # Grading Rubric (Undergraduate and Graduate)
 
 - [80 pts] Functional Requirements:
-  - Hides Tesla files properly (ls, ls -l, ls -la):    35/35
-  - Hides ssh processes (ps -ef, ps -ef | grep ssh, pstree | grep ssh):    35/35
-  - Module can be installed and removed without crashing the system: 10/10 (you won't get these points if your module doesn't implement any of the above functional requirements.)
+  - Hides Tesla files properly /30
+    - hides against 'ls'.  (10)
+    - hides against 'ls -l',  (10)
+    - hides against 'ls -la'    (15)
+  - Hides ssh processes (ps -ef, ps -ef | grep ssh, pstree | grep ssh):    /35
+  - Module can be installed and removed without crashing the system: /10 (you won't get these points if your module doesn't implement any of the above functional requirements.)
 
 - [10 pts] Compiling
   - Each compiler warning will result in a 3-point deduction.
