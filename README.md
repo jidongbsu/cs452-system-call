@@ -171,11 +171,11 @@ I used the following APIs. When unsure how an API should be called, you are enco
 
 - kmalloc():
 
-prototype: void \*kmalloc(size\_t size, gfp\_t flags); in kernel space, when allocating memory, you can't use malloc() anymore. malloc() is not available. instead, you use kmalloc(). This function takes two parameters. The first parameter specifies the size (i.e., the number of bytes) you want to allocate, the second parameter is called flags, in this course, you always use GFP\_KERNEL - you can search online to find out what other flags are available and what are the meanings, but throughout this semester, in all your kernel project, this flag is sufficient for you. In other words, in all your kernel projects for this course, whenever you call kmalloc(), the 2nd parameter is always GFP\_KERNEL. kmalloc() returns a void\* pointer, you may want to cast this pointer to other types.
+prototype: void \*kmalloc(size\_t size, gfp\_t flags); in kernel space, when allocating memory, you can't use malloc() anymore. malloc() is not available. instead, you use kmalloc(). This function takes two parameters. The first parameter specifies the size (i.e., the number of bytes) you want to allocate, the second parameter is called flags, in this course, you always use GFP\_KERNEL - you can search online to find out what other flags are available and what are the meanings, but throughout this semester, in all your kernel project, this flag is sufficient for you. In other words, in all your kernel projects for this course, whenever you call kmalloc(), the 2nd parameter is always GFP\_KERNEL. kmalloc() returns a void\* pointer, you may want to cast this pointer to other types - just like what you do when calling malloc().
 
 - kfree():
 
-prototype: void kfree(const void * objp); this function free previously allocated memory. whatever pointer returned by kmalloc(), should then be passed to kfree(), so the memory will be released. In this aspect, kmalloc()/kfree() is similar to malloc()/free(). kfree() does not return anything.
+prototype: void kfree(const void * objp); this function frees previously allocated memory. whatever pointer returned by kmalloc(), should then be passed to kfree(), so the memory will be released. In this aspect, kmalloc()/kfree() is similar to malloc()/free(). kfree() does not return anything.
 
 - copy\_from\_user():
 
