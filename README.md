@@ -175,8 +175,9 @@ Due: 23:59pm, January 25th, 2022. Late submission will not be accepted/graded.
   - Module can be installed and removed without crashing the system: 10/10 (you won't get these points if your module doesn't implement any of the above functional requirements.)
 
 - [10 pts] Compiling
-  - Each compiler warning will result in a 3 point deduction.
+  - Each compiler warning will result in a 3-point deduction.
   - You are not allowed to suppress warnings. (you won't get these points if your module doesn't implement any of the above functional requirements.)
 
 - [10 pts] Documentation:
   - README.md file (replace this current README.md with a new one using the README template, and do not check in this current README file.)
+  - You are required to fill in every section of the README template, missing 1 section will result in 2-point deduction.
