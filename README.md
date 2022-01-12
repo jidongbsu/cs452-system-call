@@ -247,6 +247,17 @@ strace -ff -o trace sh -c 'ps -ef | grep ssh'
 
 This strace command will trace child processes as well, so when you run this command it will produce more than one trace file, named "trace.XXX", where XXX is the pid of the process being traced.
 
+## Debugging
+
+Ideally, you should setup kgdb which allows you to use gdb to debug kernel, but this requires you to do some research online and find out how to setup it for your specific environment (VMware vs VirtualBox, Windows vs Linux vs MacOS). It may take some time, but you will benefit from it given that there are 5 kernel projects in total throughout the semester.
+
+Without setting up kgdb, a simpler but less efficient debugging technique is using printk() to print messages. Note that the kernel print messages will not show on the screen. The messages are, however, logged in the file /var/log/messages. You can open another terminal and watch the output to the system messages file with the command:
+
+```console
+sudo tail -f /var/log/messages
+```
+Alternatively,  you can use the command **sudo dmesg --follow** to watch for kernel log messages.
+
 # Book References
 
 [Direct Execution](https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-mechanisms.pdf). 
