@@ -249,6 +249,38 @@ strace -ff -o trace sh -c 'ps -ef | grep ssh'
 
 This strace command will trace child processes as well, so when you run this command it will produce more than one trace file, named "trace.XXX", where XXX is the pid of the process being traced.
 
+## What Exactly Does sys_getdents() Do?
+
+sys_getdents() is the kernel counterpart of the system call function getdents(), when users call getdents(), eventually in the kernel space, sys_getdents() is the function gets called to complete the task on behalf of the user.
+
+The prototype of getdents is:
+
+int getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count);
+
+If you have a file, whose name is “abc”, and if its content is “12345”, then on your disk, there will be a data block storing the content of this file.
+
+If you have a directory called “foo”, which contains 1 subdirectory (“bar”) and 2 files (”abc”, and “defgh”). Then on your disk, there will be a data block storing the names of the subdirectory and files, but not storing the content of the subdirectory or files – the subdirectory and the files have their own data blocks.
+
+The data block owned by this directory "foo" would therefore look like this:
+
+```c
+5, d_off0, d_reclen0, “.”
+2, d_off1, d_reclen1, “..”
+12, d_off2, d_reclen2, “bar”
+13, d_off3, d_reclen3, “abc”
+24, d_off4, d_reclen4, “defgh”
+```
+
+In above, 5, 2, 12, 13, 24, are called inodes. In Linux system, we assign one number to each file or directory, this number is called inode – index node - kernel uses this number to differentiate files (in Linux, directories are also considered as files, it’s just a special type of files). Using inode to differentiate files is like using pid to differentiate processes. 
+
+Each row in the above block is called a directory entry, or dentry. Each row is represented by one struct linux_dirent. To access these entires, we call getdents and pass the file descriptor of "foo" as the first parameter to getdents(), which will evnetually call sys_getdents() in the kernel level. sys_getdents() returns the total size of all of these entries. For example, if these 5 entries in total occupy 60 bytes, then sys_getdents() returns 60 bytes, and upon return, the 2nd parameter of sys_getdents() – dirp, which is a pointer, points to the first entry. The 3rd parameter of sys_getdents(), which is count, is the size of a buffer pointed to by dirp.
+
+What if you want to access the 2nd entry? (struct linux_dirent*)((char *)dirp + d_reclen0); how about the 3rd entry? (struct linux_dirent*)((char *)dirp + d_reclen0 + d_reclen1);
+
+In struct linux_dirent, d_off represents the distance from the start of the directory to the start of the next linux_dirent. In this assignment, you likely won't eve need to access this element. Also, you don't really need to access the inode number; but you will access d_reclen.
+
+You are recommended in your tesla_getdents() function to first call the original get the dirp pointer, which will be pointing to the starting address of a user-space buffer which contains the above 5 entries.
+
 ## Debugging
 
 Ideally, you should setup kgdb which allows you to use gdb to debug kernel, but this requires you to do some research online and find out how to setup it for your specific environment (VMware vs VirtualBox, Windows vs Linux vs MacOS). It may take some time, but you will benefit from it given that there are 5 kernel projects in total throughout the semester.
