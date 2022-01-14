@@ -267,7 +267,7 @@ If you have a file, whose name is “abc”, and if its content is “12345”, 
 
 If you have a directory called “foo”, which contains 1 subdirectory (“bar”) and 2 files (”abc”, and “defgh”). Then on your disk, there will be a data block storing the names of the subdirectory and files, but not storing the content of the subdirectory or files – the subdirectory and the files have their own data blocks.
 
-The data block owned by this directory "foo" would therefore look like this:
+The data block owned by this directory "foo" could therefore look like this (this is just an example):
 
 ```c
 5, d_off0, d_reclen0, “.”
