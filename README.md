@@ -285,7 +285,7 @@ What if you want to access the 2nd entry?
 (struct linux_dirent*)((char *)dirp + d_reclen0);
 ```
 
-In struct linux_dirent, d_off represents the distance from the start of the directory (the start of the directory is the address of its first entry, i.e., the first struct linux_dirent) to the start of the next struct linux_dirent. In this assignment, you likely won't even need to access this d_off field. Also, you don't really need to access the inode number; but you will access d_reclen as well as the file name - i.e., the d_name field of the struct linux_dirent.
+In struct linux_dirent, d_reclen represents the length of this entry. The lengths of two entries could be different mainly because the length of their file names may be different. d_off represents the distance from the start of the directory (the start of the directory is the address of its first entry, i.e., the first struct linux_dirent) to the start of the next struct linux_dirent. In this assignment, you likely won't even need to access this d_off field. Also, you don't really need to access the inode number; but you will access d_reclen as well as the file name - i.e., the d_name field of the struct linux_dirent.
 
 You are recommended in your tesla_getdents() function to first call the original sys_getdents(), which will setup the dirp pointer, which will be pointing to the starting address of a user-space buffer which contains the above 5 entries (note: 5 entries is just an example). After that you can manipulate these entries to achieve your goal.
 
