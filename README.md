@@ -191,7 +191,7 @@ After these two lines, when applications call kill, they won't be calling the de
 
 This above example, shows how you can intercept a system call. You basically want the kernel to call your wrapper function first, and then in your wrapper function, you call the original system call() only when it's needed.
 
-## APIs
+## Kernel APIs and Global Variables
 
 I used the following APIs. When unsure how an API should be called, you are encouraged to search in the Linux kernel source code: https://elixir.bootlin.com/linux/v3.10/source/. You should be able to find use examples in the kernel source code. Below, when I say in "include/linux/syscalls.h", it means a path within the Linux kernel source code tree, in other words, "include/linux/syscalls.h" means "https://elixir.bootlin.com/linux/v3.10/source/include/linux/syscalls.h". 
 
@@ -221,7 +221,9 @@ prototype: unsigned long copy\_to\_user(void \_\_user \*to, const void \*from, u
 
 - I also used some string operation functions. These are the functions you normally would use in applications, but the Linux kernel provides its own implementation of these functions, which typically have the same prototype as their use space counterparts. So you can just look at the man page to find out how to use these functions. Refer to this file: include/linux/string.h, to find out what string operation functions are available in the kernel space. In theory you should include this string.h header file in your kernel module, but it seems this one is included already by some other header file which is included in the starter code, thus you don't really need to explicitly include this string.h. Depending on how you want to manipulate your strings, different students may choose to use different string operation functions. Since these are all commonly used functions by average C programmers (regardless of application developers or kernel developers), I do not describe them here. Just make sure the ones you choose to use are indeed declared in include/linux/string.h. Side note: whatever functions defined in a user level library can not be used by the kernel, and if some kernel level code wants to use such functions, they need to be refined in the kernel code.
 
-- global variable: Linux kernel defines a global variable called current, which is a struct task\_struct pointer, points to a struct task\_struct which represents the current running process. This global variable current is accessible to any kernel level code and you may want to use it. In addition, the task\_struct has hundreds of fields, one of them is called "comm", which is the command which was used to launch this process. You can see how this field is used in tesla\_kill() and then decide how you want to use it.
+- global variables: Linux kernel defines a global variable called current, which is a struct task\_struct pointer, points to a struct task\_struct which represents the current running process. This global variable current is accessible to any kernel level code and you may want to use it. In addition, the task\_struct has hundreds of fields, one of them is called "comm", which is the command which was used to launch this process. You can see how this field is used in tesla\_kill() and then decide how you want to use it.
+
+- other global variables: \_\_NR_read, \_\_NR_write, \_\_NR_getdents are the indices in the system call table for read(), write(), getdents() system calls. You can use them the same way as the starter code uses \_\_NR_kill.
 
 ## Functions You Need to Implement
 
