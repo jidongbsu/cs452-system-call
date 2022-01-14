@@ -279,7 +279,11 @@ In above, 5, 2, 12, 13, 24, are called inodes. In Linux systems, we assign one n
 
 Each row in the above data block is called a directory entry, or dentry. Each row is represented by one struct linux_dirent (see tesla.h for its definition). To access these entries, users call getdents() and pass the file descriptor of "foo" as the first parameter to getdents(), which will eventually call sys_getdents() in the kernel level. sys_getdents() returns the total size of all of these entries. For example, if these 5 entries in total occupy 60 bytes, then sys_getdents() returns 60 bytes, and upon return, the 2nd parameter of sys_getdents() – dirp, which is a pointer, points to the first entry. The 3rd parameter of sys_getdents(), which is count, is the size of a buffer pointed to by dirp.
 
-What if you want to access the 2nd entry? (struct linux_dirent*)((char *)dirp + d_reclen0); how about the 3rd entry? (struct linux_dirent*)((char *)dirp + d_reclen0 + d_reclen1);
+What if you want to access the 2nd entry? 
+
+```c
+(struct linux_dirent*)((char *)dirp + d_reclen0);
+```
 
 In struct linux_dirent, d_off represents the distance from the start of the directory (the start of the directory is the address of its first entry, i.e., the first struct linux_dirent) to the start of the next struct linux_dirent. In this assignment, you likely won't even need to access this d_off field. Also, you don't really need to access the inode number; but you will access d_reclen as well as the file name - i.e., the d_name field of the struct linux_dirent.
 
