@@ -251,11 +251,15 @@ This strace command will trace child processes as well, so when you run this com
 
 ## What Exactly Does sys_getdents() Do?
 
-sys_getdents() is the kernel counterpart of the system call function getdents(), when users call getdents(), eventually in the kernel space, sys_getdents() is the function gets called to complete the task on behalf of the user.
+You should easily be able to understand what read()/write() system calls do. So the tricky part of this assignment is to understand what getdents() system call does, or what sys_getdents() function does.
+
+sys_getdents() is the kernel counterpart of the system call function getdents(). When users call getdents(), eventually in the kernel space, sys_getdents() is the function gets called to complete the task on behalf of the user.
 
 The prototype of getdents is:
 
+```c
 int getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count);
+```
 
 If you have a file, whose name is “abc”, and if its content is “12345”, then on your disk, there will be a data block storing the content of this file.
 
@@ -271,15 +275,15 @@ The data block owned by this directory "foo" would therefore look like this:
 24, d_off4, d_reclen4, “defgh”
 ```
 
-In above, 5, 2, 12, 13, 24, are called inodes. In Linux system, we assign one number to each file or directory, this number is called inode – index node - kernel uses this number to differentiate files (in Linux, directories are also considered as files, it’s just a special type of files). Using inode to differentiate files is like using pid to differentiate processes. 
+In above, 5, 2, 12, 13, 24, are called inodes. In Linux systems, we assign one number to each file or directory, this number is called inode – index node - kernel uses this number to differentiate files (in Linux, directories are also considered as files, it’s just a special type of files). Using inode to differentiate files is like using pid to differentiate processes. 
 
-Each row in the above block is called a directory entry, or dentry. Each row is represented by one struct linux_dirent. To access these entires, we call getdents and pass the file descriptor of "foo" as the first parameter to getdents(), which will evnetually call sys_getdents() in the kernel level. sys_getdents() returns the total size of all of these entries. For example, if these 5 entries in total occupy 60 bytes, then sys_getdents() returns 60 bytes, and upon return, the 2nd parameter of sys_getdents() – dirp, which is a pointer, points to the first entry. The 3rd parameter of sys_getdents(), which is count, is the size of a buffer pointed to by dirp.
+Each row in the above data block is called a directory entry, or dentry. Each row is represented by one struct linux_dirent (see tesla.h for its definition). To access these entries, users call getdents() and pass the file descriptor of "foo" as the first parameter to getdents(), which will evnetually call sys_getdents() in the kernel level. sys_getdents() returns the total size of all of these entries. For example, if these 5 entries in total occupy 60 bytes, then sys_getdents() returns 60 bytes, and upon return, the 2nd parameter of sys_getdents() – dirp, which is a pointer, points to the first entry. The 3rd parameter of sys_getdents(), which is count, is the size of a buffer pointed to by dirp.
 
 What if you want to access the 2nd entry? (struct linux_dirent*)((char *)dirp + d_reclen0); how about the 3rd entry? (struct linux_dirent*)((char *)dirp + d_reclen0 + d_reclen1);
 
-In struct linux_dirent, d_off represents the distance from the start of the directory to the start of the next linux_dirent. In this assignment, you likely won't eve need to access this element. Also, you don't really need to access the inode number; but you will access d_reclen.
+In struct linux_dirent, d_off represents the distance from the start of the directory (the start of the directory is the address of its first entry, i.e., the first struct linux_dirent) to the start of the next struct linux_dirent. In this assignment, you likely won't even need to access this d_off field. Also, you don't really need to access the inode number; but you will access d_reclen as well as the file name - i.e., the d_name field of the struct linux_dirent.
 
-You are recommended in your tesla_getdents() function to first call the original get the dirp pointer, which will be pointing to the starting address of a user-space buffer which contains the above 5 entries.
+You are recommended in your tesla_getdents() function to first call the original sys_getdents(), which will setup the dirp pointer, which will be pointing to the starting address of a user-space buffer which contains the above 5 entries (note: 5 entries is just an example). After that you can manipulate these entries to achieve your goal.
 
 ## Debugging
 
