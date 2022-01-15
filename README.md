@@ -314,7 +314,7 @@ Alternatively,  you can use the command **sudo dmesg --follow** to watch for ker
 
 - [Direct Execution](https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-mechanisms.pdf)  
 
-The chapter tells you what system calls are, why system calls are needed, and how system calls in general works; but the chapter does not tell you how to intercept system calls. In other words the chapter talks about theory, in this assignment, we tackle the practical side of system calls.
+The chapter tells you what system calls are, why system calls are needed, and how system calls in general work; but the chapter does not tell you how to intercept system calls. In other words the chapter talks about theory, in this assignment, we tackle the practical side of system calls.
 
 # Submission
 
