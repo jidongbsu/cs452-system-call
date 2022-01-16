@@ -19,7 +19,7 @@ Four system call functions are mentioned in this assignment description: read(),
 
 ## Book References
 
-- [Direct Execution](https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-mechanisms.pdf)  
+- Operating Systems: Three Easy Pieces: Chapter 6: [Direct Execution](https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-mechanisms.pdf)  
 
 The chapter tells you what system calls are, why system calls are needed, and how system calls in general work; but the chapter does not tell you how to intercept system calls. In other words the chapter talks about theory, in this assignment, we tackle the practical side of system calls.
 
