@@ -238,7 +238,7 @@ prototype: unsigned long copy\_to\_user(void \_\_user \*to, const void \*from, u
 
 - global variables: Linux kernel defines a global variable called current, which is a struct task\_struct pointer, points to a struct task\_struct which represents the current running process. This global variable current is accessible to any kernel level code and you may want to use it. In addition, the task\_struct has hundreds of fields, one of them is called "comm", which is the command which was used to launch this process. You can see how this field is used in tesla\_kill() and then decide how you want to use it.
 
-- other global variables: \_\_NR_read, \_\_NR_write, \_\_NR_getdents are the indices in the system call table for read(), write(), getdents() system calls, these indices are what the textbook chapter refers to as "**system-call number**". You can use them the same way as the starter code uses \_\_NR_kill. Also, the sys_call_table itself is of course a global variable, and is used in the starter code - see tesla\_init(), which has the following lines:
+- other global variables: \_\_NR_read, \_\_NR_write, \_\_NR_getdents are the indices in the system call table for read(), write(), getdents() system calls, these indices are what the textbook chapter refers to as the "**system-call number**". You can use them the same way as the starter code uses \_\_NR_kill. Also, the sys_call_table itself is of course a global variable, and is used in the starter code - see tesla\_init(), which has the following lines:
 
 ```c
 /* search in kernel symbol table and find the address of sys_call_table */
