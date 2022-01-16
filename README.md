@@ -15,6 +15,8 @@ You MUST build against the kernel version (3.10.0-1160.el7.x86\_64) - which is t
 
 Also note that for all kernel level projects, your VM gets frozen is completely expected, just reboot the VM. When you have a bug in your kernel module, it easily gets the VM frozen, you just reboot your VM and debug your code and try to fix your bug. Throughout the entire semester, you likely will reboot your VM more than 100 times...
 
+Four system calls functions are mentioned in this assignment description: read(), write(), getdents(), kill(). I use read() and sys\_read() interchangably, read() is the system call function that applications can call, whereas sys\_read() is the function defined in the kernel which does the work on behalf of read(). So they are literally the same thing. When users call read() in applications, eventually sys\_read() will be called in the kernel. Using the terminology from the textbook chapter, anytime a read() call occurs, a user-mode to kernel-mode transition will happen, and this is what the textbook chapter refers to as a "trap". Once the execution is trapped in the kernel mode, the kernel calls sys\_read(). When sys\_read() returns, the execution returns to user mode, and the user-called read() function also returns. Similarly for write(), gendents(), kill(). And I use write()/sys\_write() interchangeably, use getdents()/sys\_getdents() interchangeably, use kill()/sys\_kill() interchangeably.
+
 ## Book References
 
 - [Direct Execution](https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-mechanisms.pdf)  
