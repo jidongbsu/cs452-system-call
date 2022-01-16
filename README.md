@@ -236,7 +236,35 @@ prototype: unsigned long copy\_to\_user(void \_\_user \*to, const void \*from, u
 
 - global variables: Linux kernel defines a global variable called current, which is a struct task\_struct pointer, points to a struct task\_struct which represents the current running process. This global variable current is accessible to any kernel level code and you may want to use it. In addition, the task\_struct has hundreds of fields, one of them is called "comm", which is the command which was used to launch this process. You can see how this field is used in tesla\_kill() and then decide how you want to use it.
 
-- other global variables: \_\_NR_read, \_\_NR_write, \_\_NR_getdents are the indices in the system call table for read(), write(), getdents() system calls. You can use them the same way as the starter code uses \_\_NR_kill.
+- other global variables: \_\_NR_read, \_\_NR_write, \_\_NR_getdents are the indices in the system call table for read(), write(), getdents() system calls. You can use them the same way as the starter code uses \_\_NR_kill. Also, the sys_call_table itself is of course a global variable, and is used in the starter code - see tesla\_init(), which has the following lines:
+
+```c
+/* search in kernel symbol table and find the address of sys_call_table */
+	sys_call_table = (long **)kallsyms_lookup_name("sys_call_table");
+ 
+	if (sys_call_table == NULL) {
+		printk(KERN_ERR "where the heck is the sys_call_table?\n");
+		return -1;
+	}
+```
+
+These above lines retrieve the address of the system call table and after that, the kernel module can use sys\_call\_table, a pointer defined in tesla.h, to access the system call table. In tesla\_init() - the function that is executed when you install the kernel module, you should modify the system call table so that your wrapper functions will be called when the user calls the corresponding system call functions. In tesla\_cleanup() - the function that is executed when you remove the kernel module, you should modify the system call table so as to restore the original system call functions.
+
+These following lines in tesla\_init(), using the kill() system call as an example,
+
+```c
+/* save the original kill system call into orig_kill, and replace the kill system call with tesla_kill */
+	orig_kill= (void *)sys_call_table[__NR_kill];
+	sys_call_table[__NR_kill] = (long *)tesla_kill;
+```
+
+And these following lines in tesla\_exit(),
+```c
+  	/* restore the kill system call to its original version */
+	sys_call_table[__NR_kill] = (long *)orig_kill;
+```
+
+Tells you how you should modify the system call table.
 
 ## Functions You Need to Implement
 
