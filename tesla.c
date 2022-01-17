@@ -92,7 +92,7 @@ int tesla_init(void)
 	return  0;
 }
 
-void tesla_cleanup(void)
+void tesla_exit(void)
 {
 	printk("<1> tesla: unloaded...\n");
 	/* clear bit 16 of cr0 */
@@ -109,6 +109,6 @@ void tesla_cleanup(void)
 }
 
 module_init(tesla_init);
-module_exit(tesla_cleanup);
+module_exit(tesla_exit);
 
 /* vim: set ts=4: */
