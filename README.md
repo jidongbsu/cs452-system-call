@@ -27,7 +27,12 @@ The chapter tells you what system calls are, why system calls are needed, and ho
 
 Kernel modules are binary code you can install and remove at runtime. "Install" means insert the code into memory. In Linux, we use the command "sudo insmod xxx.ko" to install a kernel module - which usually has "\*.ko" at the end of its file name. "Remove" means remove it from memory. In Linux, we use the command "sudo rmmod xxx.ko" to remove a kernel module. Once the code is inserted into memory, functions defined in the module will be available/accessible to other parts of the kernel, and will be executed if the PC counter is pointing to the address of these functions. Once the module is removed, these functions will disappear and other parts of the kernel will no longer have access to these functions.
 
-The starter code is already a kernel module, which means if you compile - by running "make", you will produce a .ko file, and you should already be able to install it and remove it. However, the functionality of this module is not complete, and that is what you need add to the module.
+The starter code is already a kernel module, which means if you compile - by running "make", you will produce a .ko file, and you should already be able to install it and remove it. However, the functionality of this module is not complete, and that is what you need add to the module. In the starter code, tesla\_init() is the function that will be executed when you install the module, and tesla\_exit() is the function that will be executed when you remove the module. In a Linux kernel module, the following two lines of code is how you tell the kernel, which function you want to run when the module is installed, and which function you want to run when the module is removed.
+
+```c
+module_init(tesla_init);
+module_exit(tesla_exit);
+```
 
 # Specification
 
