@@ -295,11 +295,11 @@ asmlinkage long tesla_write(unsigned int fd, char __user *buf, size_t count);
 asmlinkage long tesla_getdents(unsigned int fd, struct linux_dirent __user *dirp, unsigned int count);
 ```
 
-You can use this command to find out why you need to intercept the sys\_getdents() system call function.
+<!-- You can use this command to find out why you need to intercept the sys\_getdents() system call function.
 
 strace -ff -o trace sh -c 'ps -ef | grep ssh'
 
-This strace command will trace child processes as well, so when you run this command it will produce more than one trace file, named "trace.XXX", where XXX is the pid of the process being traced.
+This strace command will trace child processes as well, so when you run this command it will produce more than one trace file, named "trace.XXX", where XXX is the pid of the process being traced. -->
 
 ## What Exactly Does sys_getdents() Do?
 
