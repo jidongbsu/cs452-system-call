@@ -364,9 +364,9 @@ Due: 23:59pm, January 25th, 2022. Late submission will not be accepted/graded.
     - hides against 'ls -l',			(10 pts)
     - hides against 'ls -la'.			(15 pts)
   - Hides ssh processes				/35
-    - hides against 'ps -ef',			(10 pts)
-    - hides against 'ps -ef | grep ssh', 	(10 pts)
-    - hides against 'pstree | grep ssh'.    	(15 pts)
+    - hides against 'ps -ef' or 'pstree', no warning/error message displayed.	(15 pts)
+    - hides against 'ps -ef | grep ssh', no warning/error message displayed.	(10 pts)
+    - hides against 'pstree | grep ssh', no warning/error message displayed.  	(10 pts)
   - Module can be installed and removed without crashing the system: /10 
     - you won't get these points if your module doesn't implement any of the above functional requirements.
 
