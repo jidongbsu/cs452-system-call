@@ -36,9 +36,7 @@ module_exit(tesla_exit);
 
 # Specification
 
-Your module will intercept several systems calls, so as to achieve the goal of:
-1. hide files whose name contains the string "tesla".
-2. hide proccesses whose name contains the string "ssh".
+Your module will intercept a systems call, so as to achieve the goal of hiding files whose name contains the string "tesla".
 
 ## The Starter Code
 
@@ -150,39 +148,6 @@ As you can see, at first you have two files: tesla.c and Makefile. After running
 
 After installing your kernel module, all files whose name contains the string of "tesla" are now hidden, and you won't see these files no matter you run "ls", "ls -l", or "ls -a".
 
-## Hiding Processes
-
-This is what you should achieve:
-
-```console
-[cs452@localhost system-call]$ ps -ef | grep ssh
-root      3348     1  0 23:11 ?        00:00:00 /usr/sbin/sshd -D
-root      4035  3348  0 23:11 ?        00:00:00 sshd: cs452 [priv]
-cs452     4040  4035  0 23:11 ?        00:00:00 sshd: cs452@pts/0
-cs452     6836  4042  0 23:39 pts/0    00:00:00 grep --color=auto ssh
-[cs452@localhost system-call]$ pstree | grep ssh
-        |-sshd---sshd---sshd---bash-+-grep
-[cs452@localhost system-call]$ make clean
-/bin/rm --force .tesla* tesla.o tesla.mod.c tesla.mod.o tesla.ko Module.symvers modules.order
-/bin/rm -fr .tmp_versions/
-[cs452@localhost system-call]$ make
-make -C /lib/modules/`uname -r`/build M=`pwd` modules
-make[1]: Entering directory `/usr/src/kernels/3.10.0-957.el7.x86_64'
-  CC [M]  /home/cs452/system-call/tesla.o
-  Building modules, stage 2.
-  MODPOST 1 modules
-  CC      /home/cs452/system-call/tesla.mod.o
-  LD [M]  /home/cs452/system-call/tesla.ko
-make[1]: Leaving directory `/usr/src/kernels/3.10.0-957.el7.x86_64'
-[cs452@localhost system-call]$ sudo insmod tesla.ko
-[cs452@localhost system-call]$ ps -ef | grep ssh
-[cs452@localhost system-call]$ pstree | grep ssh
-[cs452@localhost system-call]$ sudo rmmod tesla.ko
-[cs452@localhost system-call]$ 
-```
-
-As you can see, at first you can see there are ssh processes. After installing your kernel module, all ssh processes disappear.
-
 ## What Does Intercept Mean?
 
 When you run ls or ps, these commands will call some system call functions. These system call functions are stored in the kernel memory and there are pointers pointing to these functions. If you can change these pointers, and make them point to your functions, then the default functions will not be called. Instead, your functions will be called. Look at the starter code,
@@ -277,29 +242,19 @@ Tells you how you should modify the system call table.
 
 You should use the command strace to trace what system calls are used. You are highly recommended to find some online examples showing you how to use strace, and learn what information strace provides; even though in the following I tell you what system calls you should intercept, you still are recommended to use strace to understand why we are intercepting them - if you don't understand this, you likely won't know what exactly you should do inside your wrapper functions.
 
-The 3 system calls functions you need to intercept are:
+The system call function you need to intercept is:
 
 ```c
-asmlinkage long sys_read(unsigned int fd, char __user *buf, size_t count);
-asmlinkage long sys_write(unsigned int fd, const char __user *buf, size_t count);
 asmlinkage long sys_getdents(unsigned int fd, struct linux_dirent __user *dirent, unsigned int count);
 ```
 
-All of them are declared in include/linux/syscalls.h.
+This function is declared in include/linux/syscalls.h.
 
-To intercept them, you need to implement these 3 wrapper functions.
+To intercept them, you need to implement a wrapper function.
 
 ```c
-asmlinkage long tesla_read(unsigned int fd, char __user *buf, size_t count);
-asmlinkage long tesla_write(unsigned int fd, char __user *buf, size_t count);
 asmlinkage long tesla_getdents(unsigned int fd, struct linux_dirent __user *dirp, unsigned int count);
 ```
-
-<!-- You can use this command to find out why you need to intercept the sys\_getdents() system call function.
-
-strace -ff -o trace sh -c 'ps -ef | grep ssh'
-
-This strace command will trace child processes as well, so when you run this command it will produce more than one trace file, named "trace.XXX", where XXX is the pid of the process being traced. -->
 
 ## What Exactly Does sys_getdents() Do?
 
@@ -354,19 +309,19 @@ Alternatively,  you can use the command **sudo dmesg --follow** to watch for ker
 
 # Submission
 
-Due: 23:59pm, January 25th, 2022. Late submission will not be accepted/graded.
+Due: 23:59pm, September 1st, 2022. Late submission will not be accepted/graded.
 
 # Grading Rubric (Undergraduate and Graduate)
 
 - [80 pts] Functional Requirements:
-  - Hides Tesla files properly			/35
-    - hides against 'ls',			(10 pts)
-    - hides against 'ls -l',			(10 pts)
-    - hides against 'ls -la'.			(15 pts)
-  - Hides ssh processes				/35
-    - hides against 'ps -ef' or 'pstree', no warning/error message displayed, the ps/pstree command does not get stuck.	(15 pts)
-    - hides against 'ps -ef | grep ssh', no warning/error message displayed, the ps/pstree command does not get stuck.	(10 pts)
-    - hides against 'pstree | grep ssh', no warning/error message displayed, the ps/pstree command does not get stuck.  (10 pts)
+  - Hides Tesla files properly			/70
+    - hides against 'ls' in the starter code directory,			(10 pts)
+    - hides against 'ls -l' in the starter code directory,		(10 pts)
+    - hides against 'ls -la' in the starter code directory.		(10 pts)
+    - when module is loaded, test1 directory is displayed as expected.	(10 pts)
+    - when module is loaded, test1 directory is displayed as expected.	(10 pts)
+    - when module is loaded, test1 directory is displayed as expected.	(10 pts)
+    - when module is loaded, test1 directory is displayed as expected.	(10 pts)
   - Module can be installed and removed without crashing the system: /10 
     - you won't get these points if your module doesn't implement any of the above functional requirements.
 
