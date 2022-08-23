@@ -5,7 +5,7 @@ In this assignment, we will write a Linux kernel module called tesla. Note that,
 ## Learning Objectives
 
 - Gain a better understanding of system calls and how they are implemented in a Linux system.
-- Get familar with some of the most frequently used system call functions.
+- Get familiar with some of the most frequently used system call functions.
 - Understand why system calls should be protected and the system call table should be marked as read-only.
 - Learn how to use the strace utility to trace system calls.
 
