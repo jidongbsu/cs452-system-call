@@ -1,6 +1,6 @@
 # Overview
 
-In this assignment, we will write a Linux kernel module called tesla. Note that, you will only be able to test this assignment on a Linux machine where you have root privilege. A VMware-based CentOS 7 (64 bit) VM image is provided. Later on we will refer to this VM as the cs452 VM (username/password: cs452/cs452, run commands with sudo to gain root privilege). You can also download a [CentOS 7 (64 bit) ISO file](http://bay.uchicago.edu/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-DVD-2009.iso) and install it by yourself, and you can also use VirtualBox - but students have reported that sometimes the VM shows some strange behaviors in VirtualBox+MacBook environments: kernel level debugging messages, when we do expect them to be printed, are not printed.
+In this assignment, we will write a Linux kernel module called tesla. Note that, you will only be able to test this assignment on a Linux machine where you have root privilege. A VMware-based CentOS 7 (64 bit) VM image is provided. Later on we will refer to this VM as the cs452 VM (username/password: cs452/cs452, run commands with sudo to gain root privilege). 
 
 ## Learning Objectives
 
@@ -15,7 +15,7 @@ You MUST build against the kernel version (3.10.0-1160.el7.x86\_64) - which is t
 
 Also note that for all kernel level projects, your VM gets frozen is completely expected, just reboot the VM. When you have a bug in your kernel module, it easily gets the VM frozen, you just reboot your VM and debug your code and try to fix your bug. Throughout the entire semester, you likely will reboot your VM more than 100 times...
 
-Four system call functions are mentioned in this assignment description: read(), write(), getdents(), kill(). I use read() and sys\_read() interchangeably, read() is the system call function that applications can call, whereas sys\_read() is the function defined in the kernel which does the work on behalf of read(). So they are literally the same thing. When users call read() in applications, eventually sys\_read() will be called in the kernel. Using the terminology from the textbook chapter, anytime a read() call occurs, a user-mode to kernel-mode transition will happen, and this is what the textbook chapter refers to as a "**trap**". Once the execution is trapped in the kernel mode, the kernel calls sys\_read(). When sys\_read() returns, the execution returns to user mode, and the user-called read() function also returns - this is what the textbook chapter refers to as "**return-from-trap**". Similarly for write(), getdents(), kill(). And I use write()/sys\_write() interchangeably, use getdents()/sys\_getdents() interchangeably, use kill()/sys\_kill() interchangeably. In the textbook terminology, read(), write(), getdents(), kill() are system calls, and sys\_read(), sys\_write(), sys\_getdents(), and sys\_kill() are "**syscall handlers**" or "**trap handlers**". The data structure which stores the addresses of these syscall handlers, is what most people call the system call table, and the book chapter refers to it as the "**trap table**".
+Two system call functions are mentioned in this assignment description: getdents(), kill(). I use kill() and sys\_kill() interchangeably, kill() is the system call function that applications can call, whereas sys\_kill() is the function defined in the kernel which does the work on behalf of kill(). So they are literally the same thing. When users call kill() in applications, eventually sys\_kill() will be called in the kernel. Using the terminology from the textbook chapter, anytime a kill() call occurs, a user-mode to kernel-mode transition will happen, and this is what the textbook chapter refers to as a "**trap**". Once the execution is trapped in the kernel mode, the kernel calls sys\_kill(). When sys\_kill() returns, the execution returns to user mode, and the user-called kill() function also returns - this is what the textbook chapter refers to as "**return-from-trap**". Similarly for write(), getdents(), kill(). And I use write()/sys\_write() interchangeably, use getdents()/sys\_getdents() interchangeably, use kill()/sys\_kill() interchangeably. In the textbook terminology, getdents(), kill() are system calls, and sys\_getdents(), and sys\_kill() are "**syscall handlers**" or "**trap handlers**". The data structure which stores the addresses of these syscall handlers, is what most people call the system call table, and the book chapter refers to it as the "**trap table**".
 
 ## Book References
 
@@ -194,11 +194,13 @@ prototype: unsigned long copy\_from\_user (void * to, const void \_\_user * from
 
 The system call functions you are going to intercept, take parameters from applications, which are programs running in user space; when these parameters are pointers, they point to a user-space address, such addresses are not accessible to kernel code. Or at least it is not safe for kernel to directly access a user-space address. In order to access the data pointed by such pointers, we need to use this copy\_from\_user() function to copy the data into kernel space. in other words, the user space has a buffer, now in your kernel module, which runs in the kernel space, you need to create another buffer, and use this copy\_from\_user() to copy the user space buffer into kernel space, and then your kernel level code can access your kernel space buffer. In the prototype, the pointer "to" points to your kernel buffer, the pointer "from" points to a user space buffer.
 
-how do you find out the user buffer? look at the prototype of sys\_read() system call (in include/linux/syscalls.h), see the 2nd parameter, is the user space buffer pointer. 
+how do you find out the user buffer? look at the prototype of sys\_getdents() system call (in include/linux/syscalls.h), see the 2nd parameter, is the user space buffer pointer. 
 
-asmlinkage long sys\_read(unsigned int fd, char \_\_user \*buf, size\_t count);
+```c
+asmlinkage long sys_getdents(unsigned int fd, struct linux_dirent __user *dirent, unsigned int count);
+```
 
-This is one of the system calls you are going to intercept, so you need to, use copy\_from\_user(), to pass the data from this "buf" to your buffer - the buffer you define in your kernel module.
+so you need to, use copy\_from\_user(), to pass the data from this "dirent" to your buffer - the buffer you define in your kernel module.
 
 - copy\_to\_user():
 
@@ -208,7 +210,7 @@ prototype: unsigned long copy\_to\_user(void \_\_user \*to, const void \*from, u
 
 - global variables: Linux kernel defines a global variable called current, which is a struct task\_struct pointer, points to a struct task\_struct which represents the current running process. This global variable current is accessible to any kernel level code and you may want to use it. In addition, the task\_struct has hundreds of fields, one of them is called "comm", which is the command which was used to launch this process. You can see how this field is used in tesla\_kill() and then decide how you want to use it.
 
-- other global variables: \_\_NR_read, \_\_NR_write, \_\_NR_getdents are the indices in the system call table for read(), write(), getdents() system calls, these indices are what the textbook chapter refers to as the "**system-call number**". You can use them the same way as the starter code uses \_\_NR_kill. Also, the sys_call_table itself is of course a global variable, and is used in the starter code - see tesla\_init(), which has the following lines:
+- other global variables: \_\_NR_getdents is the index in the system call table for the getdents() system call, this index is what the textbook chapter refers to as the "**system-call number**". You can use it the same way as the starter code uses \_\_NR_kill. Also, the *sys_call_table* itself is of course a global variable, and is used in the starter code - see tesla\_init(), which has the following lines:
 
 ```c
 /* search in kernel symbol table and find the address of sys_call_table */
