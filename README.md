@@ -331,13 +331,11 @@ But the *ls* command is more about directories: *ls* is a tool to list directory
 The data block owned by this directory "foo" could therefore look like this (this is just an example):
 
 
-|---|--------|-----------|----------|
 |5  | d_off0 | d_reclen0 |  ".”     |
 |2  | d_off1 | d_reclen1 |  “..”    |
 |12 | d_off2 | d_reclen2 |  “bar”   |
 |13 | d_off3 | d_reclen3 |  “abc”   |
 |24 | d_off4 | d_reclen4 |  “defgh” |
-|---|--------|-----------|----------|
 
 This is like a table, which right now has 5 rows. In above, 5, 2, 12, 13, 24, are called inodes. In Linux systems, we assign one number to each file or directory, this number is called inode – index node - kernel uses this number to differentiate files (in Linux, directories are also considered as files, it’s just a special type of files).
 
