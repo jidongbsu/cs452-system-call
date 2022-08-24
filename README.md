@@ -428,7 +428,7 @@ Due: 23:59pm, September 1st, 2022. Late submission will not be accepted/graded.
   - Module can be installed and removed without crashing the system: /10 
     - you won't get these points if your module doesn't implement any of the above functional requirements.
 
-- [10 pts] Compiling
+- [10 pts] Compiling:
   - Each compiler warning will result in a 3-point deduction.
   - You are not allowed to suppress warnings. (you won't get these points if your module doesn't implement any of the above functional requirements.)
 
