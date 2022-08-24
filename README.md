@@ -401,8 +401,8 @@ Due: 23:59pm, September 1st, 2022. Late submission will not be accepted/graded.
 
 - [80 pts] Functional Requirements:
   - Hides Tesla files properly			/70
-    - hides against 'ls' in the starter code directory,			(10 pts)
-    - hides against 'ls -l' in the starter code directory,		(10 pts)
+    - hides against 'ls' in the starter code directory.			(10 pts)
+    - hides against 'ls -l' in the starter code directory.		(10 pts)
     - hides against 'ls -la' in the starter code directory.		(10 pts)
     - when module is loaded, test1 directory is displayed as expected.	(10 pts)
     - when module is loaded, test1 directory is displayed as expected.	(10 pts)
