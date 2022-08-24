@@ -331,6 +331,7 @@ But the *ls* command is more about directories: *ls* is a tool to list directory
 The data block owned by this directory "foo" could therefore look like this (this is just an example):
 
 <!--|ino| offset | record len| file name|-->
+|   |        |           |          |
 |---|--------|-----------|----------|
 |5  | d_off0 | d_reclen0 |  ".”     |
 |2  | d_off1 | d_reclen1 |  “..”    |
