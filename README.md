@@ -312,6 +312,8 @@ To intercept it, you need to implement a wrapper function.
 asmlinkage long tesla_getdents(unsigned int fd, struct linux_dirent __user *dirp, unsigned int count);
 ```
 
+And in your wrapper function (i.e., *tesla_getdents*()), you call the original system call function (i.e., *sys_getdents*()).
+
 ## What Exactly Does *sys_getdents*() Do?
 
 *sys_getdents*() is the kernel counterpart of the system call function *getdents*(). When users call *getdents*(), eventually in the kernel space, *sys_getdents*() is the function gets called to complete the task on behalf of the user.
