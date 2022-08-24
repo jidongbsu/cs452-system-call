@@ -280,7 +280,7 @@ whatever described above for copy\_from\_user() is still applicable to this func
 	}
 ```
 
-These above lines retrieve the address of the system call table and after that, the kernel module can use sys\_call\_table, a pointer defined in tesla.h, to access the system call table. In *tesla_init*() - the function that is executed when you install the kernel module, you should modify the system call table so that your wrapper functions will be called when the user calls the corresponding system call functions. In *tesla_exit*() - the function that is executed when you remove the kernel module, you should modify the system call table so as to restore the original system call functions.
+These above lines retrieve the address of the system call table and after that, the kernel module can use **sys_call_table**, a pointer defined in tesla.h, to access the system call table. In *tesla_init*() - the function that is executed when you install the kernel module, you should modify the system call table so that your wrapper functions will be called when the user calls the corresponding system call functions. In *tesla_exit*() - the function that is executed when you remove the kernel module, you should modify the system call table so as to restore the original system call functions.
 
 These following lines in *tesla_init*(), using the kill() system call as an example,
 
