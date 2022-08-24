@@ -368,7 +368,7 @@ Approach 1: move the entries after the tesla entry one step forward, i.e., move 
 
 Approach 2: change the *d_reclen* field of the *bar* entry, i.e., change *d_reclen2* to (*d_reclen2* + *d_reclen3*).
 
-Either approach should work for us, but if we are not allowed to call *memmove*(), then probably approach 2 is eaiser.
+Either approach should work for us, but if we are not allowed to call *memmove*(), then probably approach 2 is eaiser. **Credit**: this second approach was originally proposed and implemented by Ross Rippee who took this class from me in spring 2022.
 
 ## Debugging
 
