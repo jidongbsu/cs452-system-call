@@ -193,9 +193,9 @@ When you run *ls* or *kill*, these commands will call some system call functions
     sys_call_table[__NR_kill] = (long *)tesla_kill;
 ```
 
-sys\_call\_table[] - this array stores the system call table, which stores all the pointers for all the system call functions. sys\_call\_table[\_\_NR\_kill] - this element of the array stores the address of the sys\_kill() system call function. So what the above two lines are doing are: first save the default system call's address into a function pointer called orig\_kill, and then assign a new function pointer, whose name is tesla\_kill, to the array element.
+**sys_call_table**[] - this array stores the system call table, which stores all the pointers for all the system call functions. **sys_call_table[__NR_kill]** - this element of the array stores the address of the *sys_kill*() system call function. So what the above two lines are doing are: first save the default system call's address into a function pointer called *orig_kill*(), and then assign a new function pointer, whose name is *tesla_kill*, to the array element.
 
-After these two lines, when applications call kill, they won't be calling the default kill, rather, it is the tesla\_kill() function which will be called. And then, if the goal of tesla\_kill() is to prevent ssh from being killed, then we can use tesla\_kill() as a wrapper function of the original sys\_kill() function. Below is the main code of the tesla\_kill() function.
+After these two lines, when applications call kill, they won't be calling the default kill, rather, it is the *tesla_kill*() function which will be called. And then, if the goal of *tesla_kill*() is to prevent ssh from being killed, then we can use *tesla_kill*() as a wrapper function of the original *sys_kill*() function. Below is the main code of the *tesla_kill*() function.
 
 ```c
     target = pid_task(find_pid_ns(pid, &init_pid_ns), PIDTYPE_PID);
@@ -268,7 +268,7 @@ whatever described above for copy\_from\_user() is still applicable to this func
 
 - I also used the string operation function *strstr*() to check if a buffer contains a substring. You normally would use *strstr*() in applications, but the Linux kernel provides its own implementation of this same function, which has the same prototype as its use space counterpart. Refer to this file: include/linux/string.h, to find out what string operation functions are available in the kernel space. In theory you should include this string.h header file in your kernel module, but it seems this one is included already by some other header file which is included in the starter code, thus you don't really need to explicitly include this string.h. The starter code actually has an example of how to use *strstr*() - see *tesla_kill*().
 
-- other global variables: \_\_NR_getdents is the index in the system call table for the getdents() system call, this index is what the textbook chapter refers to as the "**system-call number**". You can use it the same way as the starter code uses \_\_NR_kill. Also, the *sys_call_table* itself is of course a global variable, and is used in the starter code - see tesla\_init(), which has the following lines:
+- other global variables: **__NR_getdents** is the index in the system call table for the getdents() system call, this index is what the textbook chapter refers to as the "**system-call number**". You can use it the same way as the starter code uses **__NR_kill**. Also, the *sys_call_table* itself is of course a global variable, and is used in the starter code - see *tesla_init*(), which has the following lines:
 
 ```c
 /* search in kernel symbol table and find the address of sys_call_table */
@@ -280,9 +280,9 @@ whatever described above for copy\_from\_user() is still applicable to this func
 	}
 ```
 
-These above lines retrieve the address of the system call table and after that, the kernel module can use sys\_call\_table, a pointer defined in tesla.h, to access the system call table. In tesla\_init() - the function that is executed when you install the kernel module, you should modify the system call table so that your wrapper functions will be called when the user calls the corresponding system call functions. In tesla\_cleanup() - the function that is executed when you remove the kernel module, you should modify the system call table so as to restore the original system call functions.
+These above lines retrieve the address of the system call table and after that, the kernel module can use sys\_call\_table, a pointer defined in tesla.h, to access the system call table. In *tesla_init*() - the function that is executed when you install the kernel module, you should modify the system call table so that your wrapper functions will be called when the user calls the corresponding system call functions. In *tesla_exit*() - the function that is executed when you remove the kernel module, you should modify the system call table so as to restore the original system call functions.
 
-These following lines in tesla\_init(), using the kill() system call as an example,
+These following lines in *tesla_init*(), using the kill() system call as an example,
 
 ```c
 /* save the original kill system call into orig_kill, and replace the kill system call with tesla_kill */
