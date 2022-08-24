@@ -300,15 +300,13 @@ Tells you how you should modify the system call table.
 
 ## Functions You Need to Implement
 
-In this assignment, you will slightly change *tesla_init*() and *tesla_exit*(), but you will spend the majority of your time working on intercepting the system call function:
+In this assignment, you will slightly change *tesla_init*() and *tesla_exit*(), but you will spend the majority of your time working on intercepting the system call function *sys_getdents*(). This function is declared in include/linux/syscalls.h:
 
 ```c
 asmlinkage long sys_getdents(unsigned int fd, struct linux_dirent __user *dirent, unsigned int count);
 ```
 
-This function is declared in include/linux/syscalls.h.
-
-To intercept them, you need to implement a wrapper function.
+To intercept it, you need to implement a wrapper function.
 
 ```c
 asmlinkage long tesla_getdents(unsigned int fd, struct linux_dirent __user *dirp, unsigned int count);
