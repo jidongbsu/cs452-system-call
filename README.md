@@ -1,6 +1,6 @@
 # Overview
 
-In this assignment, we will write a Linux kernel module called tesla. Note that, you will only be able to test this assignment on a Linux machine where you have the root privilege. A VMware-based CentOS 7 (64 bit) VM image is therefore provided. Later on we will refer to this VM as the cs452 VM (username/password: cs452/cs452, run commands with *sudo* to gain root privilege). 
+In this assignment, we will write a Linux kernel module called tesla. Note that, you will only be able to test this assignment on a Linux machine where you have the root privilege. A VMware-based CentOS 7 (64 bit) VM image is therefore provided - you should be able to use this image no matter you use VMware or Virtualbox, they both recognize this image format. Later on we will refer to this VM as the cs452 VM (username/password: cs452/cs452, run commands with *sudo* to gain root privilege). 
 
 ## Learning Objectives
 
