@@ -22,13 +22,13 @@ Also note that for all kernel level projects, your VM gets frozen is completely 
 
 The chapter tells you what system calls are, why system calls are needed, and how system calls in general work; but the chapter does not tell you how to intercept system calls. In other words the chapter talks about theory, in this assignment, we tackle the practical side of system calls.
 
-Two system call functions are mentioned in this assignment description: getdents(), kill(). I use kill() and sys\_kill() interchangeably, kill() is the system call function that applications can call, whereas sys\_kill() is the function defined in the kernel which does the work on behalf of kill(). So they are literally the same thing. When users call kill() in applications, eventually sys\_kill() will be called in the kernel. Using the terminology from the textbook chapter, anytime a kill() call occurs, a user-mode to kernel-mode transition will happen, and this is what the textbook chapter refers to as a "**trap**". Once the execution is trapped in the kernel mode, the kernel calls sys\_kill(). When sys\_kill() returns, the execution returns to user mode, and the user-called kill() function also returns - this is what the textbook chapter refers to as "**return-from-trap**". Similarly for write(), getdents(), kill(). And I use write()/sys\_write() interchangeably, use getdents()/sys\_getdents() interchangeably, use kill()/sys\_kill() interchangeably. In the textbook terminology, getdents(), kill() are system calls, and sys\_getdents(), and sys\_kill() are "**syscall handlers**" or "**trap handlers**". The data structure which stores the addresses of these syscall handlers, is what most people call the system call table, and the book chapter refers to it as the "**trap table**".
+Two system call functions are mentioned in this assignment description: *getdents*(), *kill*(). I use *kill*() and *sys_kill*() interchangeably, *kill*() is the system call function that applications can call, whereas *sys_kill*() is the function defined in the kernel which does the work on behalf of *kill*(). So they are literally the same thing. When users call *kill*() in applications, eventually *sys_kill*() will be called in the kernel. Using the terminology from the textbook chapter, anytime a *kill*() call occurs, a user-mode to kernel-mode transition will happen, and this is what the textbook chapter refers to as a "**trap**". Once the execution is trapped in the kernel mode, the kernel calls *sys_kill*(). When *sys_kill*() returns, the execution returns to user mode, and the user-called *kill*() function also returns - this is what the textbook chapter refers to as "**return-from-trap**". In the textbook terminology, *getdents*(), *kill*() are system calls, and *sys_getdents*(), and *sys_kill*() are "**syscall handlers**" or "**trap handlers**". The data structure which stores the addresses of these syscall handlers, is what most people call the **system call table**, and the book chapter refers to it as the "**trap table**".
 
 ## What Are Kernel Modules?
 
 Kernel modules are binary code you can install and remove at runtime. "Install" means insert the code into memory. In Linux, we use the command "*sudo insmod xxx.ko*" to install a kernel module - which usually has "\*.ko" at the end of its file name. "Remove" means remove it from memory. In Linux, we use the command "*sudo rmmod xxx.ko*" to remove a kernel module. Once the code is inserted into memory, functions defined in the module will be available/accessible to other parts of the kernel, and will be executed if the PC counter is pointing to the address of these functions. Once the module is removed, these functions will disappear and other parts of the kernel will no longer have access to these functions.
 
-The starter code is already a kernel module, which means if you compile - by running "*make*", you will produce a .ko file, and you should already be able to install it and remove it. However, the functionality of this module is not complete, and that is what you need add to the module. In the starter code, tesla\_init() is the function that will be executed when you install the module, and tesla\_exit() is the function that will be executed when you remove the module. In a Linux kernel module, the following two lines of code is how you tell the kernel, which function you want to run when the module is installed, and which function you want to run when the module is removed.
+The starter code is already a kernel module, which means if you compile - by running "*make*", you will produce a .ko file, and you should already be able to install it and remove it. However, the functionality of this module is not complete, and that is what you need add to the module. In the starter code, *tesla_init*() is the function that will be executed when you install the module, and *tesla_exit*() is the function that will be executed when you remove the module. In a Linux kernel module, the following two lines of code is how you tell the kernel, which function you want to run when the module is installed, and which function you want to run when the module is removed.
 
 ```c
 module_init(tesla_init);
@@ -290,7 +290,7 @@ These following lines in *tesla_init*(), using the kill() system call as an exam
 	sys_call_table[__NR_kill] = (long *)tesla_kill;
 ```
 
-And these following lines in tesla\_exit(),
+And these following lines in *tesla_exit*(),
 ```c
   	/* restore the kill system call to its original version */
 	sys_call_table[__NR_kill] = (long *)orig_kill;
@@ -314,11 +314,11 @@ To intercept them, you need to implement a wrapper function.
 asmlinkage long tesla_getdents(unsigned int fd, struct linux_dirent __user *dirp, unsigned int count);
 ```
 
-## What Exactly Does sys_getdents() Do?
+## What Exactly Does *sys_getdents*() Do?
 
-sys_getdents() is the kernel counterpart of the system call function getdents(). When users call getdents(), eventually in the kernel space, sys_getdents() is the function gets called to complete the task on behalf of the user.
+*sys_getdents*() is the kernel counterpart of the system call function *getdents*(). When users call *getdents*(), eventually in the kernel space, *sys_getdents*() is the function gets called to complete the task on behalf of the user.
 
-The prototype of getdents is:
+The prototype of *getdents*() is:
 
 ```c
 int getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count);
@@ -331,12 +331,13 @@ But the *ls* command is more about directories: *ls* is a tool to list directory
 The data block owned by this directory "foo" could therefore look like this (this is just an example):
 
 
-|5  | d_off0 | d_reclen0 |  ".”     |
 |---|--------|-----------|----------|
+|5  | d_off0 | d_reclen0 |  ".”     |
 |2  | d_off1 | d_reclen1 |  “..”    |
 |12 | d_off2 | d_reclen2 |  “bar”   |
 |13 | d_off3 | d_reclen3 |  “abc”   |
 |24 | d_off4 | d_reclen4 |  “defgh” |
+|---|--------|-----------|----------|
 
 This is like a table, which right now has 5 rows. In above, 5, 2, 12, 13, 24, are called inodes. In Linux systems, we assign one number to each file or directory, this number is called inode – index node - kernel uses this number to differentiate files (in Linux, directories are also considered as files, it’s just a special type of files).
 
@@ -356,7 +357,7 @@ You are recommended in your *tesla_getdents*() function to first call the origin
 
 Ideally, you should setup kgdb which allows you to use gdb to debug kernel, but this requires you to do some research online and find out how to setup it for your specific environment (VMware vs VirtualBox, Windows vs Linux vs MacOS). It may take some time, but you will benefit from it given that there are 5 kernel projects in total throughout the semester.
 
-Without setting up kgdb, a simpler but less efficient debugging technique is using printk() to print messages. Note that the kernel print messages will not show on the screen. The messages are, however, logged in the file /var/log/messages. You can open another terminal and watch the output to the system messages file with the command:
+Without setting up kgdb, a simpler but less efficient debugging technique is using *printk*() to print messages. Note that the kernel print messages will not show on the screen. The messages are, however, logged in the file /var/log/messages. You can open another terminal and watch the output to the system messages file with the command:
 
 ```console
 sudo tail -f /var/log/messages
