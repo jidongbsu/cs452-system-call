@@ -433,5 +433,5 @@ Due: 23:59pm, September 1st, 2022. Late submission will not be accepted/graded.
   - You are not allowed to suppress warnings. (you won't get these points if your module doesn't implement any of the above functional requirements.)
 
 - [10 pts] Documentation:
-  - README.md file (replace this current README.md with a new one using the README template, and do not check in this current README file.)
+  - README.md file (rename this current README file to README.orig and rename the README.template to README.md)
   - You are required to fill in every section of the README template, missing 1 section will result in a 2-point deduction.
