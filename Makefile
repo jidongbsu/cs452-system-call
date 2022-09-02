@@ -1,6 +1,14 @@
 KERNEL_SOURCE=/lib/modules/`uname -r`/build
+MY_CFLAGS += -g -DDEBUG -O0
+ccflags-y += ${MY_CFLAGS}
+CC += ${MY_CFLAGS}
+
+debug:
+	make -C ${KERNEL_SOURCE} M=`pwd` modules
+	EXTRA_CFLAGS="$(MY_CFLAGS)"
+
 all:
-	 make -C ${KERNEL_SOURCE} M=`pwd` modules
+	make -C ${KERNEL_SOURCE} M=`pwd` modules
 
 obj-m += tesla.o
 
