@@ -312,6 +312,8 @@ To intercept it, you need to implement a wrapper function.
 asmlinkage long tesla_getdents(unsigned int fd, struct linux_dirent __user *dirp, unsigned int count);
 ```
 
+And in your wrapper function (i.e., *tesla_getdents*()), you call the original system call function (i.e., *sys_getdents*()).
+
 ## What Exactly Does *sys_getdents*() Do?
 
 *sys_getdents*() is the kernel counterpart of the system call function *getdents*(). When users call *getdents*(), eventually in the kernel space, *sys_getdents*() is the function gets called to complete the task on behalf of the user.
@@ -324,7 +326,7 @@ int getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count);
 
 If you have a file, whose name is “abc”, and if its content is “12345”, then on your disk, there will be a data block storing the content of this file.
 
-But the *ls* command is more about directories: *ls* is a tool to list directory contents. If you have a directory called “foo”, which contains 1 subdirectory (“bar”) and 2 files (”abc”, and “defgh”). Then on your disk, there will be a data block storing the names of the subdirectory and files, but not storing the content of the subdirectory or files – the subdirectory and the files have their own data blocks.
+But the *ls* command is more about directories: *ls* is a tool to list directory contents. If you have a directory called “foo”, which contains 1 subdirectory (“bar”) and 2 files (”tesla”, and “abc”). Then on your disk, there will be a data block storing the names of the subdirectory and files, but not storing the content of the subdirectory or files – the subdirectory and the files have their own data blocks.
 
 The data block owned by this directory "foo" could therefore look like this (this is just an example):
 
@@ -334,12 +336,23 @@ The data block owned by this directory "foo" could therefore look like this (thi
 |5  | d_off0 | d_reclen0 |  ".”     |
 |2  | d_off1 | d_reclen1 |  “..”    |
 |12 | d_off2 | d_reclen2 |  “bar”   |
-|13 | d_off3 | d_reclen3 |  “abc”   |
-|24 | d_off4 | d_reclen4 |  “defgh” |
+|13 | d_off3 | d_reclen3 |  “tesla” |
+|24 | d_off4 | d_reclen4 |  “abc”   |
 
 This is like a table, which right now has 5 rows. In above, 5, 2, 12, 13, 24, are called inodes. In Linux systems, we assign one number to each file or directory, this number is called inode – index node - kernel uses this number to differentiate files (in Linux, directories are also considered as files, it’s just a special type of files).
 
-Each row in the above data block is called a directory entry, or dentry. Each row is represented by one *struct linux_dirent* (see tesla.h for its definition). To access these entries, users call *getdents*() and pass the file descriptor of "foo" as the first parameter to *getdents*(), which will eventually call *sys_getdents*() in the kernel level. *sys_getdents*() returns the total size of all of these entries, i.e., the current total size of this whole table. For example, if these 5 entries in total occupy 60 bytes, then *sys_getdents*() returns 60 bytes, and upon return, the 2nd parameter of *sys_getdents*() – *dirp*, which is a pointer, points to the first entry of this table. The 3rd parameter of *sys_getdents*(), which is *count*, is the size of a buffer pointed to by *dirp*.
+Each row in the above data block is called a directory entry, or dentry. Each row is represented by one *struct linux_dirent*, which is defined as:
+
+```c
+struct linux_dirent {
+        unsigned long   d_ino;	/* Inode number */
+        unsigned long   d_off;	/* Distance from the start of the directory to the start of the next linux_dirent */
+        unsigned short  d_reclen;	/* Length of this linux_dirent */
+        char            d_name[1];	/* Filename (null-terminated), variable width. */
+};
+```
+
+To access these entries, users call *getdents*() and pass the file descriptor of "foo" as the first parameter to *getdents*(), which will eventually call *sys_getdents*() in the kernel level. *sys_getdents*() returns the total size of all of these entries, i.e., the current total size of this whole table. For example, if these 5 entries in total occupy 60 bytes, then *sys_getdents*() returns 60 bytes, and upon return, the 2nd parameter of *sys_getdents*() – **dirp**, which is a pointer, points to the first entry of this table. The 3rd parameter of *sys_getdents*(), which is *count*, is the size of a buffer pointed to by **dirp**.
 
 What if you want to access the 2nd entry? 
 
@@ -349,7 +362,13 @@ What if you want to access the 2nd entry?
 
 In *struct linux_dirent*, *d_reclen* represents the length of this entry. The lengths of two entries could be different mainly because the length of their file names may be different. *d_off* represents the distance from the start of the directory (the start of the directory is the address of its first entry, i.e., the first *struct linux_dirent*) to the start of the next *struct linux_dirent*. In this assignment, you likely won't even need to access this *d_off* field. Also, you don't really need to access the inode number; but you will access *d_reclen* as well as the file name - i.e., the *d_name* field of the *struct linux_dirent*.
 
-You are recommended in your *tesla_getdents*() function to first call the original *sys_getdents*(), which will setup the dirp pointer, which will be pointing to the starting address of a user-space buffer which contains the above 5 entries (note: 5 entries is just an example). After that you can manipulate these entries to achieve your goal.
+You are recommended in your *tesla_getdents*() function to first call the original *sys_getdents*(), which will setup the **dirp** pointer, which will be pointing to the starting address of a user-space buffer which contains the above 5 entries (note: 5 entries is just an example). After that you can manipulate these entries to achieve your goal, which is hiding files. The idea is, *sys_getdents*() returns this table to *ls* - store the table in the aforementioned user-space buffer, and this table contains 5 entries, but if you do not want the tesla entry to be reported, then you can just remove this tesla entry from the table, so that *ls* will display every other entry but won't display this tesla entry. In summary, what we are going to do is lying to the *ls* command. So how to lie to *ls*? Or in other words, how do we remove that tesla entry? There are two approaches:
+
+Approach 1: move the entries after the tesla entry one step forward, i.e., move the *abc* entry one step forward, so as to overwrite the tesla entry.
+
+Approach 2: change the *d_reclen* field of the *bar* entry, i.e., change *d_reclen2* to (*d_reclen2* + *d_reclen3*).
+
+Either approach should work for us, but if we are not allowed to call *memmove*(), then probably approach 2 is easier. **Credit**: this second approach was originally proposed and implemented by Ross Rippee who took this class from me in spring 2022.
 
 ## Debugging
 
@@ -409,10 +428,10 @@ Due: 23:59pm, September 1st, 2022. Late submission will not be accepted/graded.
   - Module can be installed and removed without crashing the system: /10 
     - you won't get these points if your module doesn't implement any of the above functional requirements.
 
-- [10 pts] Compiling
+- [10 pts] Compiling:
   - Each compiler warning will result in a 3-point deduction.
   - You are not allowed to suppress warnings. (you won't get these points if your module doesn't implement any of the above functional requirements.)
 
 - [10 pts] Documentation:
-  - README.md file (replace this current README.md with a new one using the README template, and do not check in this current README file.)
+  - README.md file (rename this current README file to README.orig and rename the README.template to README.md)
   - You are required to fill in every section of the README template, missing 1 section will result in a 2-point deduction.
