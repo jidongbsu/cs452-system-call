@@ -370,6 +370,23 @@ Approach 2: change the *d_reclen* field of the *bar* entry, i.e., change *d_recl
 
 Either approach should work for us, but if we are not allowed to call *memmove*(), then probably approach 2 is easier. **Credit**: this second approach was originally proposed and implemented by Ross Rippee who took this class from me in spring 2022.
 
+## The ls Command
+
+The *ls* command calls *sys_getdents*() like this (copied from the man page of *getdents*):
+
+```c
+           for ( ; ; ) {
+               nread = syscall(SYS_getdents, fd, buf, BUF_SIZE);
+               if (nread == -1)
+                   handle_error("getdents");
+
+               if (nread == 0)
+                   break;
+
+```
+
+Therefore we can see *ls* keeps calling *sys_getdents*() until it returns 0 or -1. When *sys_getdents*() returns a positive value, we know the return value represents the number of bytes read; when *sys_getdents*() returns something equal to or lower than 0, we know there is nothing read and we do not need to hide anything. In our code, we should take care of these two cases (positive return values vs non-positive return values).
+
 ## Debugging
 
 Ideally, you should setup kgdb which allows you to use gdb to debug kernel, but this requires you to do some research online and find out how to setup it for your specific environment (VMware vs VirtualBox, Windows vs Linux vs MacOS). It may take some time, but you will benefit from it given that there are 5 kernel projects in total throughout the semester.
