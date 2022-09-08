@@ -375,13 +375,14 @@ Either approach should work for us, but if we are not allowed to call *memmove*(
 The *ls* command calls *sys_getdents*() like this (copied from the man page of *getdents*):
 
 ```c
-           for ( ; ; ) {
-               nread = syscall(SYS_getdents, fd, buf, BUF_SIZE);
-               if (nread == -1)
-                   handle_error("getdents");
+	for ( ; ; ) {
+		nread = syscall(SYS_getdents, fd, buf, BUF_SIZE);
+		if (nread == -1)
+			handle_error("getdents");
 
-               if (nread == 0)
-                   break;
+		if (nread == 0)
+			break;
+	}
 
 ```
 
